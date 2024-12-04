@@ -1,0 +1,5 @@
+.card,
+.add-button {
+  height: 100%; /* Make sure they all have equal heights */
+  width: 100%;
+}
