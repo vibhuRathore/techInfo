@@ -4,58 +4,106 @@ const db = require('../db/db');
 const router = express.Router();
 
 
-router.get('/', (req, res) => {
-  db.query('SELECT * FROM todos', (err, results) => {
-    if (err) {
-      console.error('Error fetching todos:', err.message);
-      return res.status(500).send({ error: 'Database error' });
+router.get('/', async (req, res) => {
+  try {
+    const todoList = await db.query('SELECT * FROM todos');
+    if (!todoList) {
+      return res.status(404).send({
+        success: false,
+        message: "No task found"
+      });
     }
-    res.send(results);
-  });
+    res.status(200).send({
+      success: true,
+      message: "List of all todos",
+      todoList: todoList[0]
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting the list of ToDos",
+      error
+    });
+  }
 });
 
 
-router.post('/', (req, res) => {
-  let hello = req.body.task;
-  const { task } = req.body;
-  if (!task) {
-      return res.status(400).send({ error: 'Task is required' , message : hello});
+router.post('/', async (req, res) => {
+  try {
+    const { task , isCompleted , description } = req.body;
+    if (!task) {
+        return res.status(500).send({ success : false , error , message : "task is Required"});
+        }
+    const data = await db.query(`INSERT INTO todos (task , isCompleted , description) VALUES(? , ? , ? )`,[task , isCompleted , description]);
+    if (!data) {
+      return res.status(404).send({
+        success: false,
+        message: "Error while inserting the data "
+      });
+    }
+    res.status(201).send({
+      success: true,
+      message: "Successfully Created a item of todos",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while creating a new item of ToDos",
+      error
+    });
   }
-  db.query('INSERT INTO todos (task) VALUES (?)', [task], err => {
-      if (err) {
-          console.error('Error adding task:', err.message);
-          return res.status(500).send({ error: 'Database error' });
+});
+
+router.put('/:id', async (req, res) => {
+  try {    
+    const { id } = req.params;
+    if (!id) {
+        return res.status(500).send({ success : false , error , message : "Invalid Id"});
       }
-      res.send({ message: 'Task added!' });
-  });
-});
+    const { task , isCompleted , description } = req.body;
 
-
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const { task } = req.body;
-  if (!task) {
-    return res.status(400).send({ error: 'Task is required' });
+    const data = await db.query(`UPDATE todos SET task = ? , isCompleted = ? , description = ? WHERE id = ?`,[task , isCompleted , description , id]);
+    if (!data) {
+      return res.status(404).send({
+        success: false,
+        message: "Error while Updating the data "
+      });
+    }
+    res.status(201).send({
+      success: true,
+      message: "Successfully Updated an item of todos",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while Updating a item of ToDos",
+      error
+    });
   }
-  db.query('UPDATE todos SET task = ? WHERE id = ?', [task, id], err => {
-    if (err) {
-      console.error('Error updating task:', err.message);
-      return res.status(500).send({ error: 'Database error' });
-    }
-    res.send({ message: 'Task updated!' });
-  });
 });
 
-
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  db.query('DELETE FROM todos WHERE id = ?', [id], err => {
-    if (err) {
-      console.error('Error deleting task:', err.message);
-      return res.status(500).send({ error: 'Database error' });
-    }
-    res.send({ message: 'Task deleted!' });
-  });
+router.delete('/:id', async (req, res) => {
+  try {    
+    const { id } = req.params;
+    if (!id) {
+        return res.status(500).send({ success : false , error , message : "Invalid Id"});
+      }
+    await db.query(`DELETE from todos WHERE id = ?`,[id]);
+    res.status(201).send({
+      success: true,
+      message: "Successfully Deleted an item of todos",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while Deleting an item of ToDos",
+      error
+    });
+  }
 });
 
 module.exports = router;

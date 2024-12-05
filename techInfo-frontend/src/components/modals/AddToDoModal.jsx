@@ -4,24 +4,24 @@ import Modal from "react-bootstrap/Modal";
 
 export default function AddToDoModal(props) {
   console.log("props?.value", props?.value);
-  const [title, setTitle] = useState(
-    props?.value?.title ? props?.value?.title : ""
+  const [task, setTask] = useState(
+    props?.value?.task ? props?.value?.task : ""
   );
   const [description, setDescription] = useState(
     props?.value?.description ? props?.value?.description : ""
   );
   useEffect(() => {
-    if (props?.value?.title) {
-      setTitle(props?.value?.title);
+    if (props?.value?.task) {
+      setTask(props?.value?.task);
     }
     if (props?.value?.description) {
       setDescription(props?.value?.description);
     }
-  }, [props?.value?.title, props?.value?.description]);
+  }, [props?.value?.task, props?.value?.description]);
 
   const handleSubmit = () => {
     const todo = {
-      title: title,
+      task: task,
       description: description,
       isCompleted: false,
     };
@@ -32,16 +32,15 @@ export default function AddToDoModal(props) {
 
   const handleUpdate = () => {
     const todo = {
-      title: title,
+      task: task,
       description: description,
       isCompleted: false,
-      createdAt: Date.now(),
     };
     let updatedValue = { ...props?.value, ...todo };
 
     props?.updateToDo(updatedValue);
     props?.closeToDoModal();
-    setTitle("");
+    setTask("");
     setDescription("");
   };
 
@@ -56,9 +55,9 @@ export default function AddToDoModal(props) {
             <input
               className=""
               type="text"
-              placeholder="Enter Title for your ToDo Item"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task for your ToDo Item"
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
             />
             <input
               className="mt-3"

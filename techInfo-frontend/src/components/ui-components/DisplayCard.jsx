@@ -19,9 +19,10 @@ function DisplayCard(props) {
 
   return (
     <>
-      <Card style={{ width: "18rem" }}>
+      <Card style={{ width: "36rem" }}>
         <Card.Body>
           <Card.Title>{props?.data?.task}</Card.Title>
+          <Card.Subtitle>{props?.data?.description}</Card.Subtitle>
           <Button
             variant="primary"
             onClick={openToDoModal}
@@ -33,10 +34,12 @@ function DisplayCard(props) {
           <Button
             variant="danger"
             onClick={() => props?.deleteToDo(props?.data?.id)}
+            className="m-1"
           >
             Delete
           </Button>
           <Button
+            className="m-1"
             variant="success"
             onClick={markAsDone}
             disabled={props?.data?.isCompleted}

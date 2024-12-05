@@ -16,6 +16,14 @@ app.use(bodyParser.json());
 app.use('/todos', todosRoutes);
 
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+
+db.query('SELECT 1')
+  .then(() => {
+    console.log("Database is connected");
+    app.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err.message);
+  });

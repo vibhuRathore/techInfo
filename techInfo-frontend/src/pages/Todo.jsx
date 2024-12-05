@@ -5,15 +5,15 @@ import AddToDoModal from "../components/modals/AddToDoModal";
 import axios from "axios";
 
 const Todo = () => {
-
   const [allToDos, setAllToDos] = useState([]);
   const [modalState, setModalState] = useState(false);
+
   const getAllToDos = async () => {
     try {
       const response = await axios.get("http://localhost:3000/todos/");
       if (response.status === 200) {
         console.log("response", response);
-        setAllToDos(response.data); // response ke andr jis bhi field me data aa rha hoga usko state me set kra lena
+        setAllToDos(response.data.todoList);
       } else {
         console.error("Failed to fetch todos:", response.statusText);
       }
@@ -27,10 +27,11 @@ const Todo = () => {
     getAllToDos();
   }, []);
 
-
   const addToDo = async (newToDo) => {
     try {
-      const response = await axios.post('http://localhost:3000/todos/', newToDo);
+      console.log(newToDo);
+      const response = await axios.post("http://localhost:3000/todos", newToDo);
+      console.log(response.data);
       if (response.status === 201) {
         console.log("ToDo added successfully:", response.data);
         getAllToDos();
@@ -48,7 +49,8 @@ const Todo = () => {
         `http://localhost:3000/todos/${updatedToDo.id}`,
         updatedToDo
       );
-      if (response.status === 200) {
+      console.log(response);
+      if (response.status === 201) {
         console.log("ToDo updated successfully:", response.data);
         getAllToDos();
       } else {
@@ -67,36 +69,64 @@ const Todo = () => {
         getAllToDos();
       } else {
         console.error("Failed to delete ToDo:", response.statusText);
+        getAllToDos();
       }
     } catch (error) {
       console.error("Error deleting ToDo:", error);
+      getAllToDos();
     }
   };
 
   const openToDoModal = () => {
     setModalState(true);
   };
+
   const closeToDoModal = () => {
     setModalState(false);
   };
 
-  return (<>
-  <div className="d-flex justify-content-center m-4"><h1>ToDo List</h1></div>
-    <div className="row">
-      {allToDos.map((todoItem, index) => (
-        <div
-          key={index}
-          className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 d-flex justify-content-center"
-        >
-          <DisplayCard
-            data={todoItem}
-            updateToDo={updateToDo}
-            deleteToDo={deleteToDo}
-          />
+  return (
+    <>
+      <div className="text-center my-4">
+        <h1>ToDo List</h1>
+      </div>
+      <div className="container">
+        <div className="row justify-content-center">
+          {allToDos.map((todoItem, index) => (
+            <div
+              key={index}
+              className="col-12 col-sm-6 col-md-4 col-lg-3 p-3"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: "300px",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <DisplayCard
+                  data={todoItem}
+                  updateToDo={updateToDo}
+                  deleteToDo={deleteToDo}
+                />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-      <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 d-flex justify-content-center">
-        <Button onClick={openToDoModal}>Add ToDo</Button>
+      </div>
+      <div className="text-center my-4">
+        <button
+          className="btn btn-primary p-3 text-lg font-bold"
+          onClick={openToDoModal}
+        >
+          addTask
+        </button>
       </div>
       <AddToDoModal
         modalState={modalState}
@@ -104,7 +134,6 @@ const Todo = () => {
         closeToDoModal={closeToDoModal}
         addToDo={addToDo}
       />
-    </div>
     </>
   );
 };
